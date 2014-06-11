@@ -1,19 +1,10 @@
 var express = require('express');
+var async = require('async');
 var router = express.Router();
 
 /* GET home page. */
 var wm = require("../weather_module");
 
-var w1 = wm({"state":"CA","city":"San Francisco"});
-var w2 = wm({"state":"CA","city":"San Ramon"});
-
-router.get('/w1', function(req, res) {
-  res.json(w1);
-});
-
-router.get('/w2', function(req, res) {
-  res.json(w2);
-});
 
 router.get('/wm', function(req, res) {
 	var url = require('url');
@@ -22,8 +13,34 @@ router.get('/wm', function(req, res) {
 
 	var state = query["state"];
 	var city = query["city"];
-	var dw = wm({"state":state,"city":city});
-	dw.conditions(res);
+
+	//default
+	var datas = [
+					{"state":"CA","city":"Campbell"},
+					{"state":"NE","city":"Omaha"},
+					{"state":"TX","city":"Austin"},
+					{"state":"MD","city":"Timonium"}
+				];
+
+	if(state && city){
+		datas = [{"state":state,"city":city}];
+	}
+
+	//build dynamic functions
+	var funcs = new Array();
+	for(var i=0; i<datas.length; i++){
+		funcs.push(function(cb){
+			var dw = wm(datas[i++]);
+			dw.conditions(cb);
+		});
+	}
+	i=0;
+
+	//build reponse
+	async.parallel(
+		funcs,function(err,results){
+		res.json(results);
+	});
 });
 
 router.get('/list', function(req, res) {
@@ -33,8 +50,34 @@ router.get('/list', function(req, res) {
 
 	var state = query["state"];
 	var city = query["city"];
-	var dw = wm({"state":state,"city":city});
-	dw.conditionsRender(res);
+
+	//default
+	var datas = [
+					{"state":"CA","city":"Campbell"},
+					{"state":"NE","city":"Omaha"},
+					{"state":"TX","city":"Austin"},
+					{"state":"MD","city":"Timonium"}
+				];
+
+	if(state && city){
+		datas = [{"state":state,"city":city}];
+	}
+
+	//build dynamic functions
+	var funcs = new Array();
+	for(var i=0; i<datas.length; i++){
+		funcs.push(function(cb){
+			var dw = wm(datas[i++]);
+			dw.conditions(cb);
+		});
+	}
+	i=0;
+
+	//build reponse
+	async.parallel(
+		funcs,function(err,results){
+		res.render('list',{title:"Weather Report",ws:results})
+	});
 });
 
 module.exports = router;
