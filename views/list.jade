@@ -2,7 +2,22 @@ extends layout
 
 block content
     h1= title
-    p Welcome to #{title}
-    ul
+    p Today's #{title}
+    table(border=1)
+        thead
+            tr
+                th State
+                th City
+                th Temp
+                th Condition
+                th Local time
+        tbody
         each w, index in ws
-            li= w.weather
+            - if (typeof(w) !== 'undefined'){
+            tr
+                td= w.display_location.state
+                td= w.display_location.city
+                td= w.temperature_string
+                td= w.weather
+                td= w.local_time_rfc822
+            -}
