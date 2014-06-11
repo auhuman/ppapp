@@ -22,7 +22,7 @@ router.get('/wm', function(req, res) {
 
 	var state = query["state"];
 	var city = query["city"];
-	var dw = wm([{"state":state,"city":city}]);
+	var dw = wm({"state":state,"city":city});
 	dw.conditions(res);
 });
 
